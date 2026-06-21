@@ -1,12 +1,13 @@
 import { forwardRef, useEffect, useImperativeHandle, useRef, useState } from 'react';
 
 const PALETTE = [
-  { name: 'Ink', value: '#2B2B3A' },
-  { name: 'Tangerine', value: '#FF7A4D' },
-  { name: 'Sky', value: '#4DA8FF' },
-  { name: 'Mint', value: '#4FD1A5' },
-  { name: 'Sunshine', value: '#FFCE3D' },
-  { name: 'Grape', value: '#9B6DFF' },
+  { name: 'Ink', value: '#2B1A2E' },
+  { name: 'Coral', value: '#FF6B5B' },
+  { name: 'Punch', value: '#FF3D8B' },
+  { name: 'Amber', value: '#FFB13C' },
+  { name: 'Sky', value: '#3EC6FF' },
+  { name: 'Emerald', value: '#1FC79B' },
+  { name: 'Grape', value: '#7C5CFF' },
 ];
 
 const EXPORT_SIZE = 512; // cap the PNG sent to the backend at 512x512
@@ -27,7 +28,6 @@ function drawStrokes(ctx, strokes, width, height) {
     ctx.beginPath();
 
     if (stroke.points.length === 1) {
-      // A single tap — render a dot.
       const p = stroke.points[0];
       ctx.fillStyle = stroke.color;
       ctx.arc(p.x * width, p.y * height, ctx.lineWidth / 2, 0, Math.PI * 2);
@@ -72,7 +72,6 @@ const DrawCanvas = forwardRef(function DrawCanvas({ onChange }, ref) {
     onChange?.(strokesRef.current.length);
   };
 
-  // Keep the canvas's internal resolution matched to its on-screen size * DPR.
   useEffect(() => {
     const wrap = wrapRef.current;
     const canvas = canvasRef.current;
@@ -142,7 +141,6 @@ const DrawCanvas = forwardRef(function DrawCanvas({ onChange }, ref) {
   useImperativeHandle(ref, () => ({
     isEmpty: () => strokesRef.current.length === 0,
     clear,
-    // Render the normalized strokes into a clean 512x512 white PNG for the API.
     getPNG: () => {
       if (strokesRef.current.length === 0) return null;
       const out = document.createElement('canvas');
@@ -154,12 +152,15 @@ const DrawCanvas = forwardRef(function DrawCanvas({ onChange }, ref) {
     },
   }));
 
+  const toolButton =
+    'rounded-full bg-white/80 px-3.5 py-2 text-sm font-bold text-ink ring-1 ring-black/5 transition-all enabled:hover:-translate-y-0.5 enabled:hover:bg-white enabled:active:translate-y-0 disabled:opacity-35';
+
   return (
-    <div className="flex flex-col gap-3">
-      {/* The drawing surface */}
+    <div className="flex flex-col gap-4">
+      {/* The drawing surface — white canvas floating on the gradient */}
       <div
         ref={wrapRef}
-        className="relative aspect-square w-full overflow-hidden rounded-blob border-[3px] border-ink bg-white shadow-sticker-lg"
+        className="relative aspect-square w-full overflow-hidden rounded-[2rem] bg-white ring-1 ring-black/5 shadow-card"
       >
         <canvas
           ref={canvasRef}
@@ -172,15 +173,15 @@ const DrawCanvas = forwardRef(function DrawCanvas({ onChange }, ref) {
           onPointerCancel={endStroke}
         />
         {count === 0 && !currentRef.current && (
-          <div className="pointer-events-none absolute inset-0 flex flex-col items-center justify-center gap-1 text-center">
-            <span className="text-5xl">✍️</span>
-            <span className="font-hand text-lg text-ink/50">draw something here</span>
+          <div className="pointer-events-none absolute inset-0 flex flex-col items-center justify-center gap-2 text-center">
+            <span className="text-5xl opacity-90">✍️</span>
+            <span className="text-sm font-semibold text-ink/40">draw something here</span>
           </div>
         )}
       </div>
 
-      {/* Toolbar */}
-      <div className="flex flex-wrap items-center gap-3 rounded-blob border-[3px] border-ink bg-paper-deep px-4 py-3 shadow-sticker">
+      {/* Glassmorphism toolbar */}
+      <div className="flex flex-wrap items-center gap-3 rounded-3xl border border-white/50 bg-white/65 px-4 py-3 shadow-soft backdrop-blur-xl">
         {/* Colors */}
         <div className="flex items-center gap-1.5">
           {PALETTE.map((c) => (
@@ -190,19 +191,21 @@ const DrawCanvas = forwardRef(function DrawCanvas({ onChange }, ref) {
               aria-label={c.name}
               title={c.name}
               onClick={() => setColor(c.value)}
-              className={`h-7 w-7 rounded-full border-2 border-ink transition-transform hover:scale-110 ${
-                color === c.value ? 'ring-2 ring-ink ring-offset-2 ring-offset-paper-deep scale-110' : ''
+              className={`h-7 w-7 rounded-full shadow-sm transition-transform hover:scale-110 ${
+                color === c.value
+                  ? 'scale-110 ring-2 ring-ink ring-offset-2 ring-offset-white/70'
+                  : 'ring-1 ring-black/10'
               }`}
               style={{ backgroundColor: c.value }}
             />
           ))}
         </div>
 
-        <div className="hidden h-7 w-px bg-ink/20 sm:block" />
+        <div className="hidden h-7 w-px bg-ink/10 sm:block" />
 
         {/* Brush size */}
         <label className="flex flex-1 items-center gap-2 text-sm font-bold">
-          <span className="hidden sm:inline">Brush</span>
+          <span className="hidden text-ink/70 sm:inline">Brush</span>
           <span
             className="inline-block shrink-0 rounded-full bg-ink"
             style={{ width: `${size}px`, height: `${size}px` }}
@@ -220,20 +223,10 @@ const DrawCanvas = forwardRef(function DrawCanvas({ onChange }, ref) {
 
         {/* Undo / Clear */}
         <div className="flex items-center gap-2">
-          <button
-            type="button"
-            onClick={undo}
-            disabled={count === 0}
-            className="rounded-xl border-[3px] border-ink bg-white px-3 py-1.5 text-sm font-bold shadow-sticker-sm transition-all enabled:hover:-translate-y-0.5 enabled:active:translate-x-0.5 enabled:active:translate-y-0.5 enabled:active:shadow-none disabled:opacity-40"
-          >
+          <button type="button" onClick={undo} disabled={count === 0} className={toolButton}>
             ↩ Undo
           </button>
-          <button
-            type="button"
-            onClick={clear}
-            disabled={count === 0}
-            className="rounded-xl border-[3px] border-ink bg-white px-3 py-1.5 text-sm font-bold shadow-sticker-sm transition-all enabled:hover:-translate-y-0.5 enabled:active:translate-x-0.5 enabled:active:translate-y-0.5 enabled:active:shadow-none disabled:opacity-40"
-          >
+          <button type="button" onClick={clear} disabled={count === 0} className={toolButton}>
             ✕ Clear
           </button>
         </div>

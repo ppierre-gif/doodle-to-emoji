@@ -10,7 +10,7 @@ function Sparkles({ trigger }) {
     const count = 9;
     return Array.from({ length: count }, (_, i) => {
       const angle = (i / count) * Math.PI * 2 + Math.random() * 0.5;
-      const distance = 58 + Math.random() * 34;
+      const distance = 60 + Math.random() * 36;
       return {
         glyph: SPARKLE_GLYPHS[i % SPARKLE_GLYPHS.length],
         tx: `${Math.cos(angle) * distance}px`,
@@ -37,17 +37,19 @@ function Sparkles({ trigger }) {
 }
 
 const CONFIDENCE_STYLES = {
-  high: { label: 'spot on', className: 'bg-mint text-ink' },
-  medium: { label: 'pretty sure', className: 'bg-sunshine text-ink' },
-  low: { label: 'best guess', className: 'bg-tangerine text-white' },
+  high: { label: 'spot on', className: 'bg-gradient-to-r from-emerald to-[#37E0B0] text-white' },
+  medium: { label: 'pretty sure', className: 'bg-gradient-to-r from-amber to-[#FFD36B] text-ink' },
+  low: { label: 'best guess', className: 'bg-gradient-to-r from-punch to-coral text-white' },
 };
+
+const PILL =
+  'rounded-full px-4 py-2.5 font-bold text-white transition-all hover:-translate-y-0.5 active:translate-y-0';
 
 export default function ResultView({ result, onPickAlternate, onTryAgain }) {
   const { doodle, emoji, name, confidence, alternates } = result;
   const resolvedUrlRef = useRef(null);
   const [copied, setCopied] = useState(false);
 
-  // Track which Twemoji URL actually loaded, so Download grabs the real asset.
   resolvedUrlRef.current = null;
 
   useEffect(() => {
@@ -74,7 +76,6 @@ export default function ResultView({ result, onPickAlternate, onTryAgain }) {
     const shareText = `My doodle became ${emoji} ${name}! Made with Doodle to Emoji.`;
     const safeName = (name || 'emoji').replace(/[^a-z0-9]+/gi, '-').toLowerCase();
     try {
-      // Best: share the actual emoji image file (supported on most mobile browsers).
       if (url && navigator.canShare) {
         const res = await fetch(url);
         const blob = await res.blob();
@@ -86,15 +87,13 @@ export default function ResultView({ result, onPickAlternate, onTryAgain }) {
           return;
         }
       }
-      // Fallback: share text only.
       if (navigator.share) {
         await navigator.share({ title: name, text: shareText });
         return;
       }
-      // Last resort: copy the text.
       await navigator.clipboard.writeText(`${emoji} ${shareText}`);
     } catch {
-      /* user cancelled the share sheet, or it's unsupported — nothing to do */
+      /* user cancelled or unsupported — ignore */
     }
   };
 
@@ -115,33 +114,34 @@ export default function ResultView({ result, onPickAlternate, onTryAgain }) {
       a.remove();
       URL.revokeObjectURL(objectUrl);
     } catch {
-      // Fall back to opening the asset in a new tab if direct download fails.
       if (url) window.open(url, '_blank', 'noopener');
     }
   };
 
   return (
-    <div className="flex flex-col gap-5 rounded-blob border-[3px] border-ink bg-white p-5 shadow-sticker-lg animate-float-up sm:p-7">
-      {/* Doodle vs emoji, side by side */}
+    <div className="animate-float-up flex flex-col gap-6 rounded-[2rem] bg-white p-6 shadow-card sm:p-8">
+      {/* Doodle vs emoji */}
       <div className="flex items-center justify-center gap-3 sm:gap-5">
         <figure className="flex flex-col items-center gap-2">
           {doodle && (
             <img
               src={doodle}
               alt="Your doodle"
-              className="h-28 w-28 rounded-2xl border-[3px] border-ink object-contain shadow-sticker-sm sm:h-32 sm:w-32"
+              className="h-28 w-28 rounded-2xl object-contain ring-1 ring-black/5 sm:h-32 sm:w-32"
             />
           )}
-          <figcaption className="font-hand text-sm text-ink/60">your doodle</figcaption>
+          <figcaption className="text-xs font-semibold uppercase tracking-wide text-ink/40">
+            your doodle
+          </figcaption>
         </figure>
 
-        <div className="text-3xl text-ink/40 sm:text-4xl">→</div>
+        <div className="text-2xl font-bold text-ink/25 sm:text-3xl">→</div>
 
         <figure className="flex flex-col items-center gap-2">
           <div className="relative">
             <div
               key={emoji}
-              className="flex h-28 w-28 items-center justify-center rounded-2xl border-[3px] border-ink bg-paper shadow-sticker-sm animate-pop sm:h-32 sm:w-32"
+              className="animate-pop flex h-28 w-28 items-center justify-center rounded-2xl bg-gradient-to-br from-[#FFF1F6] to-[#F1ECFF] ring-1 ring-black/5 sm:h-32 sm:w-32"
             >
               <EmojiImage
                 emoji={emoji}
@@ -153,15 +153,17 @@ export default function ResultView({ result, onPickAlternate, onTryAgain }) {
             </div>
             <Sparkles trigger={emoji} />
           </div>
-          <figcaption className="font-hand text-sm text-ink/60">real emoji</figcaption>
+          <figcaption className="text-xs font-semibold uppercase tracking-wide text-ink/40">
+            real emoji
+          </figcaption>
         </figure>
       </div>
 
       {/* Name + confidence */}
       <div className="flex flex-col items-center gap-2 text-center">
-        <h2 className="font-display text-2xl font-bold capitalize">{name}</h2>
+        <h2 className="font-display text-2xl font-bold capitalize text-ink">{name}</h2>
         <span
-          className={`rounded-full border-2 border-ink px-3 py-0.5 text-xs font-extrabold uppercase tracking-wide ${confidenceStyle.className}`}
+          className={`rounded-full px-3.5 py-1 text-xs font-extrabold uppercase tracking-wide shadow-sm ${confidenceStyle.className}`}
         >
           {confidenceStyle.label}
         </span>
@@ -169,15 +171,15 @@ export default function ResultView({ result, onPickAlternate, onTryAgain }) {
 
       {/* Alternates */}
       {showAlternates && (
-        <div className="flex flex-col items-center gap-2">
-          <p className="font-hand text-sm text-ink/60">not quite? try one of these:</p>
-          <div className="flex flex-wrap items-center justify-center gap-2">
+        <div className="flex flex-col items-center gap-2.5">
+          <p className="text-sm font-semibold text-ink/50">Not quite? Try one of these:</p>
+          <div className="flex flex-wrap items-center justify-center gap-2.5">
             {alternates.map((alt, i) => (
               <button
                 key={`${alt}-${i}`}
                 type="button"
                 onClick={() => onPickAlternate(alt)}
-                className="flex h-12 w-12 items-center justify-center rounded-xl border-[3px] border-ink bg-paper-deep shadow-sticker-sm transition-all hover:-translate-y-0.5 active:translate-x-0.5 active:translate-y-0.5 active:shadow-none"
+                className="flex h-12 w-12 items-center justify-center rounded-2xl bg-white ring-1 ring-black/10 shadow-sm transition-all hover:-translate-y-0.5 hover:ring-punch/40 active:translate-y-0"
                 title="Use this emoji instead"
               >
                 <EmojiImage emoji={alt} className="h-7 w-7 text-2xl" />
@@ -188,18 +190,18 @@ export default function ResultView({ result, onPickAlternate, onTryAgain }) {
       )}
 
       {/* Actions */}
-      <div className="flex flex-wrap items-center justify-center gap-3">
+      <div className="flex flex-wrap items-center justify-center gap-2.5">
         <button
           type="button"
           onClick={downloadEmoji}
-          className="rounded-xl border-[3px] border-ink bg-sky px-4 py-2 font-bold text-white shadow-sticker transition-all hover:-translate-y-0.5 active:translate-x-0.5 active:translate-y-0.5 active:shadow-none"
+          className={`${PILL} bg-gradient-to-r from-grape to-sky shadow-glow-grape`}
         >
           ⬇ Download
         </button>
         <button
           type="button"
           onClick={copyEmoji}
-          className="rounded-xl border-[3px] border-ink bg-mint px-4 py-2 font-bold text-ink shadow-sticker transition-all hover:-translate-y-0.5 active:translate-x-0.5 active:translate-y-0.5 active:shadow-none"
+          className={`${PILL} bg-gradient-to-r from-emerald to-[#37E0B0] shadow-glow-emerald`}
         >
           {copied ? '✓ Copied!' : `⧉ Copy ${emoji}`}
         </button>
@@ -207,7 +209,7 @@ export default function ResultView({ result, onPickAlternate, onTryAgain }) {
           <button
             type="button"
             onClick={shareEmoji}
-            className="rounded-xl border-[3px] border-ink bg-grape px-4 py-2 font-bold text-white shadow-sticker transition-all hover:-translate-y-0.5 active:translate-x-0.5 active:translate-y-0.5 active:shadow-none"
+            className={`${PILL} bg-gradient-to-r from-punch to-coral shadow-glow-punch`}
           >
             ↗ Share
           </button>
@@ -215,7 +217,7 @@ export default function ResultView({ result, onPickAlternate, onTryAgain }) {
         <button
           type="button"
           onClick={onTryAgain}
-          className="rounded-xl border-[3px] border-ink bg-white px-4 py-2 font-bold shadow-sticker transition-all hover:-translate-y-0.5 active:translate-x-0.5 active:translate-y-0.5 active:shadow-none"
+          className="rounded-full bg-white px-4 py-2.5 font-bold text-ink ring-1 ring-black/10 transition-all hover:-translate-y-0.5 active:translate-y-0"
         >
           ↻ Try again
         </button>

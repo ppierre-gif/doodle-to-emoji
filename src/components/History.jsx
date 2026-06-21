@@ -19,26 +19,26 @@ export default function History({ items, onClear }) {
   };
 
   return (
-    <section className="flex flex-col gap-3">
-      <div className="flex flex-wrap items-center justify-between gap-2">
-        <h2 className="font-display text-xl font-bold">
-          Your sticker book <span className="font-hand text-base text-ink/50">({items.length})</span>
+    <section className="flex flex-col gap-4 rounded-[2rem] border border-white/40 bg-white/15 p-5 shadow-soft backdrop-blur-xl">
+      <div className="flex flex-wrap items-center justify-between gap-3">
+        <h2 className="font-display text-lg font-bold text-white drop-shadow-sm">
+          Sticker book <span className="font-body text-sm font-semibold text-white/70">· {items.length}</span>
         </h2>
         <div className="flex items-center gap-2">
           <button
             type="button"
             onClick={handleDownloadPack}
             disabled={packing}
-            className="rounded-lg border-2 border-ink bg-sky px-2.5 py-1 text-xs font-bold text-white shadow-sticker-sm transition-all enabled:hover:-translate-y-0.5 enabled:active:translate-x-0.5 enabled:active:translate-y-0.5 enabled:active:shadow-none disabled:opacity-60"
+            className="rounded-full bg-white px-3.5 py-1.5 text-xs font-bold text-ink shadow-sm transition-all enabled:hover:-translate-y-0.5 enabled:active:translate-y-0 disabled:opacity-60"
           >
             {packing ? 'Packing…' : '⬇ Sticker pack (.zip)'}
           </button>
           <button
             type="button"
             onClick={onClear}
-            className="rounded-lg border-2 border-ink bg-white px-2.5 py-1 text-xs font-bold shadow-sticker-sm transition-all hover:-translate-y-0.5 active:translate-x-0.5 active:translate-y-0.5 active:shadow-none"
+            className="rounded-full border border-white/50 bg-white/10 px-3.5 py-1.5 text-xs font-bold text-white transition-all hover:bg-white/20"
           >
-            Clear history
+            Clear
           </button>
         </div>
       </div>
@@ -47,15 +47,15 @@ export default function History({ items, onClear }) {
         {items.map((item) => (
           <figure
             key={item.id}
-            className="flex flex-col items-center gap-1 rounded-2xl border-[3px] border-ink bg-white p-2 shadow-sticker-sm"
+            className="flex flex-col items-center gap-1 rounded-2xl bg-white p-2 shadow-soft transition-transform hover:-translate-y-1"
           >
             <div className="relative flex w-full items-center justify-center">
               <img
                 src={item.doodle}
                 alt="Doodle"
-                className="h-14 w-14 rounded-lg object-contain opacity-80"
+                className="h-14 w-14 rounded-xl object-contain"
               />
-              <span className="absolute -bottom-1 -right-1 flex h-8 w-8 items-center justify-center rounded-full border-2 border-ink bg-paper">
+              <span className="absolute -bottom-1 -right-1 flex h-8 w-8 items-center justify-center rounded-full bg-white ring-1 ring-black/5 shadow-sm">
                 <EmojiImage emoji={item.emoji} className="h-5 w-5 text-lg" />
               </span>
             </div>

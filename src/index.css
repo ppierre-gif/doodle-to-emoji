@@ -13,15 +13,33 @@ body,
 }
 
 body {
-  @apply bg-paper text-ink font-body antialiased;
-  /* Soft dotted "graph paper" texture so the background isn't a flat fill. */
-  background-image:
-    radial-gradient(circle at center, rgba(43, 43, 58, 0.06) 1.4px, transparent 1.4px);
-  background-size: 22px 22px;
+  @apply text-ink font-body antialiased;
   -webkit-tap-highlight-color: transparent;
+  /* Candy-sunset gradient mesh: warm coral/pink/amber with a cool violet corner
+     for depth. White cards float on top of it. */
+  background-color: #ff4d8d;
+  background-image:
+    radial-gradient(circle at 12% 18%, rgba(255, 177, 60, 0.95), transparent 46%),
+    radial-gradient(circle at 86% 12%, rgba(255, 93, 160, 0.95), transparent 46%),
+    radial-gradient(circle at 82% 84%, rgba(124, 92, 255, 0.85), transparent 48%),
+    radial-gradient(circle at 16% 88%, rgba(255, 107, 91, 0.95), transparent 46%),
+    linear-gradient(160deg, #ff7a59 0%, #ff3d8b 58%, #8a4dff 100%);
+  background-attachment: fixed;
 }
 
-/* Chunky range slider styled to match the sticker theme. */
+/* Subtle film grain so the gradient reads as premium, not flat. */
+body::after {
+  content: '';
+  position: fixed;
+  inset: 0;
+  z-index: 0;
+  pointer-events: none;
+  opacity: 0.05;
+  mix-blend-mode: overlay;
+  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='140' height='140'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.8' numOctaves='2' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)'/%3E%3C/svg%3E");
+}
+
+/* Gradient-track brush slider that matches the theme. */
 input[type='range'] {
   -webkit-appearance: none;
   appearance: none;
@@ -31,12 +49,12 @@ input[type='range'] {
 input[type='range']::-webkit-slider-runnable-track {
   height: 8px;
   border-radius: 999px;
-  background: #2b2b3a;
+  background: linear-gradient(90deg, #ff6b5b, #ff3d8b, #ffb13c);
 }
 input[type='range']::-moz-range-track {
   height: 8px;
   border-radius: 999px;
-  background: #2b2b3a;
+  background: linear-gradient(90deg, #ff6b5b, #ff3d8b, #ffb13c);
 }
 input[type='range']::-webkit-slider-thumb {
   -webkit-appearance: none;
@@ -45,19 +63,20 @@ input[type='range']::-webkit-slider-thumb {
   height: 22px;
   width: 22px;
   border-radius: 999px;
-  background: #ff7a4d;
-  border: 3px solid #2b2b3a;
+  background: #ffffff;
+  border: 3px solid #ff3d8b;
+  box-shadow: 0 4px 10px -2px rgba(255, 61, 139, 0.6);
 }
 input[type='range']::-moz-range-thumb {
   height: 22px;
   width: 22px;
   border-radius: 999px;
-  background: #ff7a4d;
-  border: 3px solid #2b2b3a;
+  background: #ffffff;
+  border: 3px solid #ff3d8b;
+  box-shadow: 0 4px 10px -2px rgba(255, 61, 139, 0.6);
 }
 
-/* Sparkle burst on a successful match. Each sparkle starts at the center and
-   flies outward to its own (--tx, --ty) offset. */
+/* Sparkle burst on a successful match. */
 .sparkle {
   position: absolute;
   top: 50%;
@@ -81,5 +100,10 @@ input[type='range']::-moz-range-thumb {
 @media (prefers-reduced-motion: reduce) {
   .sparkle {
     display: none;
+  }
+  .animate-wiggle,
+  .animate-blob-slow,
+  .animate-blob-slower {
+    animation: none !important;
   }
 }
