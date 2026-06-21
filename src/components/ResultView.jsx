@@ -46,7 +46,7 @@ const PILL =
   'rounded-full px-4 py-2.5 font-bold text-white transition-all hover:-translate-y-0.5 active:translate-y-0';
 
 export default function ResultView({ result, onPickAlternate, onTryAgain }) {
-  const { doodle, emoji, name, confidence, alternates } = result;
+  const { doodle, emoji, name, confidence, alternates, demo, source } = result;
   const resolvedUrlRef = useRef(null);
   const [copied, setCopied] = useState(false);
 
@@ -167,6 +167,16 @@ export default function ResultView({ result, onPickAlternate, onTryAgain }) {
         >
           {confidenceStyle.label}
         </span>
+        {demo && (
+          <span className="mt-1 rounded-full bg-ink/5 px-3 py-1 text-xs font-semibold text-ink/60">
+            🧪 demo pick — start Ollama or add an API key for real recognition
+          </span>
+        )}
+        {source === 'gemma' && (
+          <span className="mt-1 rounded-full bg-ink/5 px-3 py-1 text-xs font-semibold text-ink/60">
+            ⚡ matched locally by Gemma
+          </span>
+        )}
       </div>
 
       {/* Alternates */}

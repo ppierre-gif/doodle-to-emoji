@@ -70,6 +70,40 @@ Open that URL, draw something, and hit **Convert to Emoji**.
 
 ---
 
+## No API key? Three ways it runs
+
+The backend picks a provider automatically, in this order:
+
+1. **Anthropic Claude** — used if `ANTHROPIC_API_KEY` is set (best quality).
+2. **Local Gemma (Ollama)** — if no key is set and a local vision model is
+   reachable, it does real recognition **for free, offline**.
+3. **Demo mode** — if neither is available, it returns a random, clearly-labeled
+   emoji so the whole app (drawing, history, sticker pack, share, sound) still works.
+
+### Run with a local model (Ollama)
+
+Install [Ollama](https://ollama.com/) and pull a **vision-capable** Gemma model,
+then just run the app with no key:
+
+```bash
+ollama pull gemma4:e2b-it-qat     # a small vision model (must support images)
+netlify dev                       # no ANTHROPIC_API_KEY needed
+```
+
+The result card shows **"⚡ matched locally by Gemma"** when the local model is used.
+First request is slow while the model loads; after that it stays warm.
+
+Configure via env vars (all optional):
+
+| Variable        | Default                  | Purpose                                   |
+| --------------- | ------------------------ | ----------------------------------------- |
+| `OLLAMA_MODEL`  | `gemma4:e2b-it-qat`      | Which Ollama model to use (needs vision)  |
+| `OLLAMA_URL`    | `http://localhost:11434` | Where Ollama is listening                 |
+| `USE_OLLAMA`    | `true`                   | Set to `false` to skip Ollama → demo mode |
+
+> Note: the model **must** have vision/image support. Text-only models (e.g.
+> `gemma2`) can't read the doodle and will fall back to demo mode.
+
 ## Deploy to Netlify
 
 1. Push this project to a GitHub repo (see below), then in the
