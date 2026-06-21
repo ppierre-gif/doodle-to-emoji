@@ -3,6 +3,7 @@ import DrawCanvas from './components/DrawCanvas.jsx';
 import ResultView from './components/ResultView.jsx';
 import History from './components/History.jsx';
 import { analyzeDoodle } from './lib/api.js';
+import { primeAudio, playSuccessChime } from './lib/sound.js';
 
 const HISTORY_KEY = 'doodle-emoji-history';
 const HISTORY_LIMIT = 24;
@@ -40,6 +41,8 @@ export default function App() {
       setError('Draw something first, then tap Convert.');
       return;
     }
+    // Unlock audio inside this user gesture so the success chime can play later.
+    primeAudio();
     setLoading(true);
     setError(null);
     setResult(null);
@@ -48,6 +51,7 @@ export default function App() {
       const data = await analyzeDoodle(png);
       const newResult = { ...data, doodle: png };
       setResult(newResult);
+      playSuccessChime();
       setHistory((prev) =>
         [
           {

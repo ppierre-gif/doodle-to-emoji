@@ -1,21 +1,46 @@
+import { useState } from 'react';
 import EmojiImage from './EmojiImage.jsx';
+import { downloadStickerPack } from '../lib/stickerPack.js';
 
 export default function History({ items, onClear }) {
+  const [packing, setPacking] = useState(false);
+
   if (!items.length) return null;
+
+  const handleDownloadPack = async () => {
+    setPacking(true);
+    try {
+      await downloadStickerPack(items);
+    } catch {
+      /* compositing/zip failed — leave the UI as-is */
+    } finally {
+      setPacking(false);
+    }
+  };
 
   return (
     <section className="flex flex-col gap-3">
-      <div className="flex items-center justify-between">
+      <div className="flex flex-wrap items-center justify-between gap-2">
         <h2 className="font-display text-xl font-bold">
           Your sticker book <span className="font-hand text-base text-ink/50">({items.length})</span>
         </h2>
-        <button
-          type="button"
-          onClick={onClear}
-          className="rounded-lg border-2 border-ink bg-white px-2.5 py-1 text-xs font-bold shadow-sticker-sm transition-all hover:-translate-y-0.5 active:translate-x-0.5 active:translate-y-0.5 active:shadow-none"
-        >
-          Clear history
-        </button>
+        <div className="flex items-center gap-2">
+          <button
+            type="button"
+            onClick={handleDownloadPack}
+            disabled={packing}
+            className="rounded-lg border-2 border-ink bg-sky px-2.5 py-1 text-xs font-bold text-white shadow-sticker-sm transition-all enabled:hover:-translate-y-0.5 enabled:active:translate-x-0.5 enabled:active:translate-y-0.5 enabled:active:shadow-none disabled:opacity-60"
+          >
+            {packing ? 'Packing…' : '⬇ Sticker pack (.zip)'}
+          </button>
+          <button
+            type="button"
+            onClick={onClear}
+            className="rounded-lg border-2 border-ink bg-white px-2.5 py-1 text-xs font-bold shadow-sticker-sm transition-all hover:-translate-y-0.5 active:translate-x-0.5 active:translate-y-0.5 active:shadow-none"
+          >
+            Clear history
+          </button>
+        </div>
       </div>
 
       <div className="grid grid-cols-3 gap-3 sm:grid-cols-4 md:grid-cols-5">

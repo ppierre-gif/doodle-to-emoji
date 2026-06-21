@@ -10,6 +10,9 @@ standard Unicode emoji, and the app then displays the actual high-quality
 - 🎯 Confidence rating + alternate suggestions when it's unsure
 - 📥 Download the emoji, copy the character, or redraw
 - 📒 A "sticker book" history of past conversions (saved in your browser)
+- 📦 Export your whole history as a **sticker pack** (a `.zip` of PNGs)
+- ↗️ **Share** the matched emoji image (Web Share API, on supported devices)
+- 🔊 A little sound + sparkle burst on each successful match
 
 The app uses **real emoji assets**, not AI-generated images — so results always look
 polished and official.
@@ -122,6 +125,8 @@ doodle-to-emoji/
 │  │  └─ History.jsx             # sticker-book gallery
 │  └─ lib/
 │     ├─ api.js                  # frontend → function call
-│     └─ twemoji.js              # emoji → asset codepoint
+│     ├─ twemoji.js              # emoji → asset codepoint
+│     ├─ sound.js                # success chime (Web Audio, no files)
+│     └─ stickerPack.js          # zip export of history as PNGs
 └─ .env.example                  # template for your local key
 ```
